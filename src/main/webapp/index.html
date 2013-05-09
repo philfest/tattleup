@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>JBoss Windup: Migration Analysis Tool</title>
+</head>
+<body>
+
+<div id="top" align="center">
+<table id="logo">
+<tr><td><img src="windup-logo-wiki-header.jpg"></td></tr>
+</table>
+</div>
+<br>
+
+<div id="text">
+Windup is the open source migration readiness tool by Red Hat that automates in an extensible way the review of JEE archives in preparation for their migration to JBoss. To use Windup simply:
+<ol>
+<li>Choose a name for your application (use alphanumeric characters only) .</li>
+<li>Upload the application's archive (ear or war).</li>
+<li>Identify the packages to be included or excluded from analysis in a colon delimited list (e.g. com.abc:org.def).</li> 
+<li>Click submit.</li>
+</ol>
+Windup will interrogate the archive and when finished will redirect you to the results page where you
+can step through the findings. You can find out more about Windup from its <a href="https://github.com/windup/windup/wiki">wiki on GitHub</a>.
+</div>
+
+<br>
+<div id="main" align=center>
+<form action="fileUpload" enctype="multipart/form-data" method="post">
+<table id="input" border=0 cellspacing=5 cellpadding=5>
+<TR><td align='right'>Application name*:</td><td><input type="text" name="appName" size=50/></td></TR> 
+<TR><td align='right'>Archive file*:</td><td><input type="file" name="uploadFile" /></td></TR> 
+<TR><td align='right' nowrap>Packages to analyze*:</td><td><input type="text" name="javaPkgs" size=100 maxLength=250/></td></TR> 
+<TR><td align='right' nowrap>Packages to exclude:</td><td><input type="text" name="excludePkgs" size=100 maxLength=250 /></td></TR> 
+
+<tr><td>*Required</td><td><input type="submit" name="action" value="submit"/></td></tr>
+</table>
+</form>
+</div>
+
+</body>
+</html>
