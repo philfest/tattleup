@@ -4,20 +4,4 @@
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
-  <servlet>
-    <servlet-name>WindupServlet</servlet-name>
-    <servlet-class>com.tu.webhosting</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>WindupServlet</servlet-name>
-    <url-pattern>/fileUpload</url-pattern>
-  </servlet-mapping>
-  <context-param>
-    <param-name>INPUT_BASE_DIR</param-name>
-    <param-value>/Users/Phil/redhat/windup/input</param-value>
-  </context-param>
-  <context-param>
-    <param-name>OUTPUT_BASE_DIR</param-name>
-    <param-value>/Users/Phil/redhat/jboss-ews-2.0/tomcat7/webapps/windup</param-value>
-  </context-param>
 </web-app>

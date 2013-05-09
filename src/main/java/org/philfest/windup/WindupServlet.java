@@ -1,4 +1,4 @@
-package com.tu.webhosting;
+package org.philfest.windup;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,13 +21,9 @@ import org.apache.log4j.Logger;
 import org.jboss.windup.WindupEnvironment;
 import org.jboss.windup.WindupReportEngine;
 
-@WebServlet(urlPatterns = "/fileUpload")
+@WebServlet(urlPatterns = "/WindupInput")
 @MultipartConfig
 public class WindupServlet extends HttpServlet {
-    
-    private static final String INPUT_BASE_DIR = "/Users/Phil/redhat/windup/input";
-    
-    private static final String OUTPUT_BASE_DIR = "/Users/Phil/redhat/windup/output";
 
     private static Logger logger = Logger.getLogger(WindupServlet.class);
 
@@ -72,7 +68,8 @@ public class WindupServlet extends HttpServlet {
         
         ServletContext servletContext = getServletContext();
         
-        String outputBase = servletContext.getInitParameter("OUTPUT_BASE_DIR");
+        //String outputBase = servletContext.getInitParameter("OUTPUT_BASE_DIR");
+        String outputBase = servletContext.getRealPath("/output");
         
         String outputDir = appName + "-" + time;
         
@@ -82,9 +79,7 @@ public class WindupServlet extends HttpServlet {
   
         engine.generateReport(new File(inputPath), new File(outputBase + File.separator + outputDir));     
         
-        String windupContext = servletContext.getInitParameter("WINDUP_CONTEXT");
-        
-        response.sendRedirect(outputDir);
+        response.sendRedirect("output/" + outputDir);
   
   }
 
@@ -142,7 +137,10 @@ public class WindupServlet extends HttpServlet {
         
         ServletContext servletContext = getServletContext();
         
-        String archiveDir = servletContext.getInitParameter("INPUT_BASE_DIR") + File.separator + appName + "-" + time;
+        logger.info("**** GET REALPATH TO INPUT  : " + servletContext.getRealPath("/input"));
+        
+        //String archiveDir = servletContext.getInitParameter("INPUT_BASE_DIR") + File.separator + appName + "-" + time;
+        String archiveDir = servletContext.getRealPath("/input") + File.separator + appName + "-" + time;
         
         // Create input subdirectory based on app name 
         new File(archiveDir).mkdir();
@@ -154,8 +152,6 @@ public class WindupServlet extends HttpServlet {
         File archive = new File(fullPath);
         
         logger.info("Writing archive to " + fullPath);
-        
-        if(!archive.canWrite()) logger.error("!!!!!   Cannot save archive!   !!!!!!");
                
         FileOutputStream os = new FileOutputStream(archive);
 
@@ -169,13 +165,6 @@ public class WindupServlet extends HttpServlet {
         
     }
     
-    private String getOutputPath(String appName){
-        
-        ServletContext servletContext = getServletContext();
-        
-        return servletContext.getInitParameter("OUTPUT_BASE_DIR") + File.separator + appName; 
-
-    }
     
     private byte[] getArchiveAsBytes(HttpServletRequest request, String partName) throws IOException, ServletException{
         
