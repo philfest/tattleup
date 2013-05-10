@@ -1,14 +1,40 @@
 <html>
 <head>
 <title>JBoss Windup: Migration Analysis Tool</title>
+
+<script>
+function validateForm() {
+	var x=document.forms["myForm"]["appName"].value;
+	if (x==null || x==""){
+	  alert("Application name is a required field.");
+	  return false;
+	}
+
+	x=document.forms["myForm"]["uploadFile"].value;
+    if (x==null || x==""){
+      alert("You must select an archive to upload.");
+      return false;
+    }
+
+    x=document.forms["myForm"]["javaPkgs"].value;
+    if (x==null || x==""){
+      alert("Packages to analyze is a required field.");
+      return false;
+    }    
+}
+</script>
+
 </head>
 <body>
 
 <div id="top" align="center">
 <table id="logo">
-<tr><td><img src="windup-logo-wiki-header.jpg"></td></tr>
+    <tr>
+        <td><img src="windup-logo-wiki-header.jpg"></td>
+    </tr>
 </table>
 </div>
+
 <br>
 
 <div id="text">
@@ -24,15 +50,30 @@ can step through the findings. You can find out more about Windup from its <a hr
 </div>
 
 <br>
-<div id="main" align=center>
-<form action="WindupInput" enctype="multipart/form-data" method="post">
-<table id="input" border=0 cellspacing=5 cellpadding=5>
-<TR><td align='right'>Application name*:</td><td><input type="text" name="appName" size=50/></td></TR> 
-<TR><td align='right'>Archive file*:</td><td><input type="file" name="uploadFile" /></td></TR> 
-<TR><td align='right' nowrap>Packages to analyze*:</td><td><input type="text" name="javaPkgs" size=100 maxLength=250/></td></TR> 
-<TR><td align='right' nowrap>Packages to exclude:</td><td><input type="text" name="excludePkgs" size=100 maxLength=250 /></td></TR> 
 
-<tr><td>*Required</td><td><input type="submit" name="action" value="submit"/></td></tr>
+<div id="main" align=center>
+<form name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post"  onsubmit="return validateForm()">
+<table id="input" border=0 cellspacing=5 cellpadding=5>
+	<tr>
+	   <td align='right'>Application name*:</td>
+	   <td><input type="text" name="appName" size=50/></td>
+    </tr> 
+	<tr>
+	   <td align='right'>Archive file*:</td>
+	   <td><input type="file" name="uploadFile" /></td>
+	</tr> 
+	<tr>
+	   <td align='right' nowrap>Packages to analyze*:</td>
+	   <td><input type="text" name="javaPkgs" size=100 maxLength=250/></td>
+	</tr> 
+	<tr>
+	   <td align='right' nowrap>Packages to exclude:</td>
+	   <td><input type="text" name="excludePkgs" size=100 maxLength=250 /></td>
+	</tr> 
+	<tr>
+	   <td>*Required</td>
+	   <td><input type="submit" name="action" value="submit"/></td>
+	</tr>
 </table>
 </form>
 </div>
