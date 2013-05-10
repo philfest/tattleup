@@ -12,7 +12,7 @@ There are a couple of caveats:
 
 2. Currently, you will need to create a separate context under $TOMCAT_HOME/webapps to contain the output.
 This is done so that the output will not be destroyed with a fresh deploy of windup.war. 
-The full path to this context must be stored as the value of the JEE context init param found in web.xml
+The full path to this context must be stored as the <param-value> of the <context-param> found in web.xml
 
 ======================
 For more details on Windup, or for documentation on writing Windup rules, please see the documentation at:
