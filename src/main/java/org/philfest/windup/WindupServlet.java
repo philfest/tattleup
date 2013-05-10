@@ -50,12 +50,17 @@ public class WindupServlet extends HttpServlet {
           
               if(fileName != null && !fileName.isEmpty()){
                   
+                  // Get the application name from the form.
+                  // Required field that is used to derive output dir
                   appName = request.getParameter("appName");
                   
+                  // Add timestamp to ensure uniquenes of dir name
                   appDir = appName + "-" + Long.toString(System.currentTimeMillis());
                    
+                  // Get the upoaded archive as byte[]
                   archive = getArchiveAsBytes(request, part.getName());
                   
+                  // Write the byte[] to file
                   inputPath = saveArchive(appDir, fileName, archive);
                   
               }
@@ -66,13 +71,17 @@ public class WindupServlet extends HttpServlet {
         
             ServletContext servletContext = getServletContext();
     
-            //String outputBase = servletContext.getRealPath("/output");            
+            //String outputBase = servletContext.getRealPath("/output"); 
+            
+            // Get context param to find path to out dir. This currently located in sep. ctxt.
             String outputBase = servletContext.getInitParameter("OUTPUT_BASE_DIR");
     
             WindupEnvironment settings = processRequest(request);
-              
+            
+            // Initialize windup with settings  
             WindupReportEngine engine = new WindupReportEngine(settings);
       
+            // Run windup 
             engine.generateReport(new File(inputPath), new File(outputBase + File.separator + appDir));   
            
             response.sendRedirect("/windup-output/" + appDir);
@@ -83,7 +92,9 @@ public class WindupServlet extends HttpServlet {
 
     
     public WindupEnvironment processRequest(HttpServletRequest request) {
-
+        
+            // Grab settings from  request. Some of these may or may not be 
+            // text fields w/in the form so do sanity check first
             WindupEnvironment settings = new WindupEnvironment();
 
             if (StringUtils.isNotBlank(request.getParameter("javaPkgs"))) {
@@ -149,6 +160,7 @@ public class WindupServlet extends HttpServlet {
         
         ServletContext servletContext = getServletContext();
 
+        // Get full path to this context's input dir
         String archiveDir = servletContext.getRealPath("/input") + File.separator + appDir;
         
         // Create input subdirectory based on app name 
