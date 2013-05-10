@@ -3,6 +3,8 @@
 <title>JBoss Windup: Migration Analysis Tool</title>
 
 <script>
+
+
 function validateForm() {
 	var x=document.forms["myForm"]["appName"].value;
 	if (x==null || x==""){
@@ -21,6 +23,11 @@ function validateForm() {
       alert("Packages to analyze is a required field.");
       return false;
     }    
+
+    document.getElementById("text").style.display="none";
+    document.getElementById("pleaseWait").style.color="blue";
+    document.getElementById("pleaseWait").style.display="";
+    return true;
 }
 </script>
 
@@ -36,6 +43,9 @@ function validateForm() {
 </div>
 
 <br>
+<span id="pleaseWait" style="display:none">
+Windup is now analyzing your archive. This could take awhile...
+</span> 
 
 <div id="text">
 Windup is the open source migration readiness tool by Red Hat that automates in an extensible way the review of JEE archives in preparation for their migration to JBoss. To use Windup simply:
@@ -45,13 +55,13 @@ Windup is the open source migration readiness tool by Red Hat that automates in 
 <li>Identify the packages to be included or excluded from analysis in a colon delimited list (e.g. com.abc:org.def).</li> 
 <li>Click submit.</li>
 </ol>
-Windup will interrogate the archive and when finished will redirect you to the results page where you
+Windup will analyze the archive and when finished will redirect you to the results page where you
 can step through the findings. You can find out more about Windup from its <a href="https://github.com/windup/windup/wiki">wiki on GitHub</a>.
 </div>
 
 <br>
 
-<div id="main" align=center>
+<div id="input" align=center>
 <form name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post"  onsubmit="return validateForm()">
 <table id="input" border=0 cellspacing=5 cellpadding=5>
 	<tr>
