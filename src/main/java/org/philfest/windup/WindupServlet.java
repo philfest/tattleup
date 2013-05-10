@@ -33,14 +33,14 @@ public class WindupServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
           throws ServletException, IOException {
-        
-        String time = Long.toString(System.currentTimeMillis());
            
         String fileName = null;
         
         String appName = null;
         
-        byte[] archive;
+        String appDir = null;
+        
+        byte[] archive = null;
         
         String inputPath = null;
             
@@ -49,40 +49,39 @@ public class WindupServlet extends HttpServlet {
             fileName = getFileName(part);
           
               if(fileName != null && !fileName.isEmpty()){
-              
-                  logger.info("File name : " + fileName);
-              
-                  logger.info("Packages : " + request.getParameter("javaPkgs"));
                   
                   appName = request.getParameter("appName");
                   
+                  appDir = appName + "-" + Long.toString(System.currentTimeMillis());
+                   
                   archive = getArchiveAsBytes(request, part.getName());
                   
-                  logger.info("Packages : " + request.getParameter("javaPkgs"));
-                  
-                  inputPath = saveArchive(appName, fileName, archive, time);
+                  inputPath = saveArchive(appDir, fileName, archive);
                   
               }
           
         } 
         
-        ServletContext servletContext = getServletContext();
+        if(archive.length > 0){
         
-        //String outputBase = servletContext.getInitParameter("OUTPUT_BASE_DIR");
-        String outputBase = servletContext.getRealPath("/output");
+            ServletContext servletContext = getServletContext();
+    
+            //String outputBase = servletContext.getRealPath("/output");            
+            String outputBase = servletContext.getInitParameter("OUTPUT_BASE_DIR");
+    
+            WindupEnvironment settings = processRequest(request);
+              
+            WindupReportEngine engine = new WindupReportEngine(settings);
+      
+            engine.generateReport(new File(inputPath), new File(outputBase + File.separator + appDir));   
+           
+            response.sendRedirect("/windup-output/" + appDir);
         
-        String outputDir = appName + "-" + time;
-        
-        WindupEnvironment settings = processRequest(request);
-          
-        WindupReportEngine engine = new WindupReportEngine(settings);
+        }
   
-        engine.generateReport(new File(inputPath), new File(outputBase + File.separator + outputDir));     
-        
-        response.sendRedirect("output/" + outputDir);
-  
-  }
+    }
 
+    
     public WindupEnvironment processRequest(HttpServletRequest request) {
 
             WindupEnvironment settings = new WindupEnvironment();
@@ -103,7 +102,7 @@ public class WindupServlet extends HttpServlet {
                 settings.setFetchRemote(request.getParameter("fetchRemote"));
             }
             
-            settings.setLogLevel("INFO");
+            settings.setLogLevel("info");
             if (StringUtils.isNotBlank(request.getParameter("logLevel"))) {
                 settings.setLogLevel(request.getParameter("logLevel"));
             }
@@ -113,10 +112,13 @@ public class WindupServlet extends HttpServlet {
                captureLog = true; 
             }
             settings.setCaptureLog(captureLog);
+            
+            logger.info(settings.toString());
  
             return settings;
     }
 
+    
     private String getFileName(Part part) {
 
         for (String cd : part.getHeader("content-disposition").split(";")) {
@@ -132,15 +134,22 @@ public class WindupServlet extends HttpServlet {
         return null;
 
     }
+    
+    
+    private byte[] getArchiveAsBytes(HttpServletRequest request, String partName) throws IOException, ServletException{
+        
+        InputStream is = request.getPart(partName).getInputStream();
+        
+        return IOUtils.toByteArray(is);
+        
+    }
 
-    private String saveArchive(String appName, String fileName, byte[] b, String time) throws IOException {
+    
+    private String saveArchive(String appDir, String fileName, byte[] b) throws IOException {
         
         ServletContext servletContext = getServletContext();
-        
-        logger.info("**** GET REALPATH TO INPUT  : " + servletContext.getRealPath("/input"));
-        
-        //String archiveDir = servletContext.getInitParameter("INPUT_BASE_DIR") + File.separator + appName + "-" + time;
-        String archiveDir = servletContext.getRealPath("/input") + File.separator + appName + "-" + time;
+
+        String archiveDir = servletContext.getRealPath("/input") + File.separator + appDir;
         
         // Create input subdirectory based on app name 
         new File(archiveDir).mkdir();
@@ -162,15 +171,6 @@ public class WindupServlet extends HttpServlet {
         os.close();
         
         return fullPath; 
-        
-    }
-    
-    
-    private byte[] getArchiveAsBytes(HttpServletRequest request, String partName) throws IOException, ServletException{
-        
-        InputStream is = request.getPart(partName).getInputStream();
-        
-        return IOUtils.toByteArray(is);
         
     }
     

@@ -1,10 +1,10 @@
 Windup-web
 =====================
-A servlet front-end for JBoss Windup. Build Windup separately. 
+A servlet front-end for JBoss Windup. Build and install the Windup maven projects separately. 
 Requires the jad decompiler (http://www.varaneckas.com/jad/) to be installed and available to the container via PATH. 
 
 How do I run Windup-web?
-Deploy windup.war to Tomcat7 and then point your browser to the /windup context.
+Deploy windup.war to Tomcat7 and then point your browser to the /windup context. Be sure Tomcat explodes the war or you won't be able to write files.
 
 What is Windup?
 - JBoss Windup is a framework for migrating software between different technologies; it was conceived to help with migrations from Weblogic and Websphere to JBoss, but has many more potential applications!

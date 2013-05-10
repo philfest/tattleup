@@ -4,4 +4,8 @@
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
+  <context-param>
+    <param-name>OUTPUT_BASE_DIR</param-name>
+    <param-value>/Users/Phil/redhat/jboss-ews-2.0/tomcat7/webapps/windup-output</param-value>
+  </context-param>
 </web-app>
