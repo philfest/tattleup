@@ -68,13 +68,8 @@ public class WindupServlet extends HttpServlet {
         } 
         
         if(archive.length > 0){
-        
-            ServletContext servletContext = getServletContext();
-    
-            //String outputBase = servletContext.getRealPath("/output"); 
             
-            // Get context param to find path to out dir. This currently located in sep. ctxt.
-            String outputBase = servletContext.getInitParameter("OUTPUT_BASE_DIR");
+            String outputBase = getOutputPath();
     
             WindupEnvironment settings = processRequest(request);
             
@@ -183,6 +178,17 @@ public class WindupServlet extends HttpServlet {
         os.close();
         
         return fullPath; 
+        
+    }
+    
+    
+    private String getOutputPath(){
+        
+        ServletContext servletContext = getServletContext();
+        
+        StringBuffer input = new StringBuffer(servletContext.getRealPath("/"));
+        
+        return input.substring(0, input.lastIndexOf(File.separator)) + "-output";
         
     }
     
