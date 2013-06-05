@@ -88,7 +88,10 @@
 <div id="text">
 Welcome to the TransUnion JBoss Migration Tool.<BR><BR>
 
-This tool uses 2 open source projects from JBoss, Windup and Tattletale, to analyze your application archive.
+This tool uses 2 open source projects from JBoss, Windup and Tattletale, to analyze your application archive. 
+Windup specifically examines the archive for potential elements within it (proprietary configuration or code for exampe), and
+Tattletale takes a more general tack and looks for missing jar dependencies and classes. 
+Thus the tools are complementary, and this site is intended as an easy and automated way to use them. 
 <BR><BR>
 To analyze your archive simply:
 <ol>
@@ -97,7 +100,7 @@ To analyze your archive simply:
 <li>Identify the packages to be included or excluded from analysis in a colon delimited list (e.g. com.abc:org.def).</li> 
 <li>Click submit.</li>
 </ol>
-The tool will then analyze the archive and when finished will zip up the results and make them available for download.
+The tool will then analyze the archive and when finished will zip up the results from both tools for downloading.
 To learn more about the results and how you can run both Tattletale and Windup on your own, please visit the project's on the web.
 <BR><BR> 
 You can find out more about Windup from its <a href="https://github.com/windup/windup/wiki">wiki on GitHub</a>.
