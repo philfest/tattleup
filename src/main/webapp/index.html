@@ -2,42 +2,70 @@
 <head>
 <title>JBoss Windup: Migration Analysis Tool</title>
 
-
-<!--[IF IE]>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
+    <script src="http://malsup.github.com/jquery.form.js"></script> 
+    
+    <!--[IF IE]>
     <script type="text/javascript">
         alert("You appear to be using Internet Explorer. Please exit and revisit this site with Firefox. Your results will not appear correctly otherwise.");
     </script>
-<![endif]-->
+	<![endif]-->
 
-<script>
-function validateForm() {
-	var x=document.forms["myForm"]["appName"].value;
-	if (x==null || x==""){
-	  alert("Application name is a required field.");
-	  return false;
-	}
+<script> 
+    	var options = { 
+    	    url:        	'WindupInput', 
+    	    beforeSubmit: 	validateForm,
+    	    success:		showResponse,
+    	    forceSync:		'true'
+    	};
 
-	if( /[^a-zA-Z0-9]/.test(x)) {
-        alert('Application name must be alphanumeric');
-     return false;
-    }
+    
+        // wait for the DOM to be loaded 
+        $(document).ready(function() { 
+            // bind 'myForm' and provide a simple callback function 
+            $('#myForm').ajaxForm(options); 
+        }); 
 
-	x=document.forms["myForm"]["uploadFile"].value;
-    if (x==null || x==""){
-      alert("You must select an archive to upload.");
-      return false;
-    }
+        $('#myForm').submit(function() { 
+            // submit the form 
+            $(this).ajaxSubmit(); 
+            // return false to prevent normal browser submit and page navigation 
+            return false; 
+        });
 
-    x=document.forms["myForm"]["javaPkgs"].value;
-    if (x==null || x==""){
-      alert("Packages to analyze is a required field.");
-      return false;
-    }    
+        function validateForm() {
+        	var x=document.forms["myForm"]["appName"].value;
+        	if (x==null || x==""){
+        	  alert("Application name is a required field.");
+        	  return false;
+        	}
 
-    document.getElementById("text").style.display="none";
-    document.getElementById("pleaseWait").style.display="";
-    return true;
-}
+        	if( /[^a-zA-Z0-9]/.test(x)) {
+                alert('Application name must be alphanumeric');
+             return false;
+            }
+
+        	x=document.forms["myForm"]["uploadFile"].value;
+            if (x==null || x==""){
+              alert("You must select an archive to upload.");
+              return false;
+            }
+
+            x=document.forms["myForm"]["javaPkgs"].value;
+            if (x==null || x==""){
+              alert("Packages to analyze is a required field.");
+              return false;
+            }    
+
+            document.getElementById("text").innerHTML = 'Your archive is now being analyzed. This could take a while...';
+            
+            return true;
+        }
+
+        function showResponse(responseText, statusText, xhr, $form){
+        	document.getElementById("text").innerHTML = responseText;
+        }
+ 
 </script>
 
 </head>
@@ -52,26 +80,36 @@ function validateForm() {
 </div>
 
 <br>
-<span id="pleaseWait" style="display:none">
-Windup is now analyzing your archive. This could take awhile...
-</span> 
+
+<!-- <div id="pleaseWait" style="display:none"> -->
+<!-- Windup is now analyzing your archive. This could take awhile... -->
+<!-- </div>  -->
 
 <div id="text">
-Windup is the extensible open source migration readiness tool by Red Hat. Windup automates the review of JEE archives in preparation for their migration to JBoss. To use Windup simply:
+Welcome to the TransUnion JBoss Migration Tool.<BR><BR>
+
+This tool uses 2 open source projects from JBoss, Windup and Tattletale, to analyze your application archive.
+<BR><BR>
+To analyze your archive simply:
 <ol>
 <li>Choose a name for your application (use alphanumeric characters only) .</li>
 <li>Upload the application's archive (ear or war).</li>
 <li>Identify the packages to be included or excluded from analysis in a colon delimited list (e.g. com.abc:org.def).</li> 
 <li>Click submit.</li>
 </ol>
-Windup will analyze the archive and when finished will redirect you to the results page where you
-can step through the findings. You can find out more about Windup from its <a href="https://github.com/windup/windup/wiki">wiki on GitHub</a>.
+The tool will then analyze the archive and when finished will zip up the results and make them available for download.
+To learn more about the results and how you can run both Tattletale and Windup on your own, please visit the project's on the web.
+<BR><BR> 
+You can find out more about Windup from its <a href="https://github.com/windup/windup/wiki">wiki on GitHub</a>.
+<BR><BR>
+The Tattletale project can be found on the <a href='http://www.jboss.org/tattletale'>JBoss Community website</a>.
 </div>
 
 <br>
 
 <div id="input" align=center>
-<form name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post"  onsubmit="return validateForm()">
+<!-- <form name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post"  onsubmit="return validateForm()"> -->
+<form id="myForm"  name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post">
 <table id="input" border=0 cellspacing=5 cellpadding=5>
 	<tr>
 	   <td align='right'>Application name*:</td>

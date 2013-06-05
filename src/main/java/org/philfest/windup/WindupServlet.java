@@ -1,9 +1,12 @@
 package org.philfest.windup;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -14,10 +17,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.jboss.tattletale.Main;
 import org.jboss.windup.WindupEnvironment;
 import org.jboss.windup.WindupReportEngine;
 
@@ -26,6 +32,14 @@ import org.jboss.windup.WindupReportEngine;
 public class WindupServlet extends HttpServlet {
 
     private static Logger logger = Logger.getLogger(WindupServlet.class);
+    
+    private static final String INPUT = "input";
+    
+    private static final String OUTPUT = "output";
+    
+    private static final String TATTLETALE = "tattletale";
+    
+    private static final String WINDUP = "windup";
 
     public WindupServlet() {
         super();
@@ -68,21 +82,204 @@ public class WindupServlet extends HttpServlet {
         } 
         
         if(archive.length > 0){
+                        
+            try{
             
-            String outputBase = getOutputPath();
+            	doWindup(request, inputPath, appDir);
+            
+            	doTattletale(request, inputPath, appDir);
+            	
+            	zipOutput(appDir);
+            	
+            	writeResponse(response, appDir);
+                      
+            } catch (Exception e){
+            	
+            	logger.error("Could not process.", e);
+            	
+            }
+            
+            //String outputBase = getOutputPath();
     
-            WindupEnvironment settings = processRequest(request);
+            //WindupEnvironment settings = processRequest(request);
             
             // Initialize windup with settings  
-            WindupReportEngine engine = new WindupReportEngine(settings);
+            //WindupReportEngine engine = new WindupReportEngine(settings);
       
             // Run windup 
-            engine.generateReport(new File(inputPath), new File(outputBase + File.separator + appDir));   
+            //engine.generateReport(new File(inputPath), new File(outputBase + File.separator + appDir));   
            
-            response.sendRedirect("/windup-output/" + appDir);
-        
+            //response.sendRedirect("/windup-output/" + appDir);
+                    
         }
   
+    }
+    
+    public void doTattletale(HttpServletRequest request, String inputPath, String appDir) throws Exception {
+    	
+    	Main main = new Main();
+    	
+    	main.setSource(inputPath);
+    	
+    	String output = getRealPath() + OUTPUT + File.separator + appDir + File.separator + TATTLETALE;
+    	
+    	logger.info("************ TATTLETALE OUTPUT PATH " + output + " ***********************");
+    	
+    	main.setDestination(output);
+    	
+    	main.setFailOnInfo(false);
+    	
+    	main.setFailOnWarn(false);
+    	
+    	main.setFailOnError(false);
+    	
+    	main.setDeleteOutputDirectory(true);
+    	
+    	main.execute();
+    	
+    }
+    
+    
+    public void doWindup(HttpServletRequest request, String inputPath, String appDir) 
+    		throws IOException{
+    	
+    	WindupEnvironment settings = processRequest(request);
+        
+        // Initialize windup with settings  
+        WindupReportEngine engine = new WindupReportEngine(settings);
+        
+        String output = getRealPath() + OUTPUT + File.separator + appDir + File.separator + WINDUP;
+        
+        logger.info("************ WINDUP OUTPUT PATH " + output + " ***********************");
+  
+        // Run windup 
+        engine.generateReport(new File(inputPath), new File(output)); 
+
+        
+    }
+    
+    
+    private void zipOutput(String appDir) throws Exception{
+    	
+    	String inpath = getRealPath();
+    	
+    	String outpath = inpath.substring(0, inpath.lastIndexOf(File.separator)) + "-output" + File.separator + appDir + ".zip";
+    	
+    	inpath += "output" + File.separator + appDir;
+    	
+    	createZip(inpath, outpath);
+
+    }
+    
+    
+	public void createZip(String directoryPath, String zipPath) throws IOException {
+		
+		FileOutputStream fOut = null;
+		
+		BufferedOutputStream bOut = null;
+		
+		ZipArchiveOutputStream tOut = null;
+		
+		try {
+		
+			fOut = new FileOutputStream(new File(zipPath));
+			
+			bOut = new BufferedOutputStream(fOut);
+			
+			tOut = new ZipArchiveOutputStream(bOut);
+			
+			addFileToZip(tOut, directoryPath, "");
+		
+		} finally {
+			
+			tOut.finish();
+			
+			tOut.close();
+			
+			bOut.close();
+			
+			fOut.close();
+		}
+	}
+	
+	private void addFileToZip(ZipArchiveOutputStream zOut, String path, String base) throws IOException {
+		
+		File f = new File(path);
+		
+		String entryName = base + f.getName();
+		
+		ZipArchiveEntry zipEntry = new ZipArchiveEntry(f, entryName);
+		
+		zOut.putArchiveEntry(zipEntry);
+		
+		if (f.isFile()) {
+		
+			FileInputStream fInputStream = null;
+			
+			try {
+			
+				logger.info("----- addFileToZip file "+f.getAbsolutePath());
+				
+				fInputStream = new FileInputStream(f);
+				
+				IOUtils.copy(fInputStream, zOut);
+				
+				zOut.closeArchiveEntry();
+			
+			} finally {
+			
+				fInputStream.close();
+			
+			}
+		
+		} else {
+			
+			logger.info("-------------- addFileToZip directories "+f.getAbsolutePath());
+			
+			zOut.closeArchiveEntry();
+			
+			File[] children = f.listFiles();
+			
+			if (children != null) {
+			
+				for (File child : children) {
+				
+					addFileToZip(zOut, child.getAbsolutePath(), entryName + "/");
+				
+				}
+			
+			}
+		
+		}
+	}
+    
+    public void writeResponse(HttpServletResponse response, String appdir) throws IOException {
+    	
+    	PrintWriter writer = response.getWriter();
+    	
+    	response.setContentType("text/html");
+    	
+    	//writer.write("<html>");
+    	
+    	//writer.write("<head>");
+    	
+    	//writer.write("<title>Analysis Results</title>");
+   	 	
+    	//writer.write("</head>");
+    	
+    	//writer.write("<body>");
+    	
+    	writer.write("Done! Please download your ");
+    	
+    	writer.write("<a href='/windup-output/" + appdir + ".zip'>results here</a>.");
+    	   	 	
+    	//writer.write("</body>");
+    	
+    	//writer.write("</html>");
+    	
+    	writer.flush();
+    	
+    	writer.close();
     }
 
     
@@ -182,13 +379,15 @@ public class WindupServlet extends HttpServlet {
     }
     
     
-    private String getOutputPath(){
+    private String getRealPath(){
         
-        ServletContext servletContext = getServletContext();
+        ServletContext servletContext = this.getServletContext();
         
-        StringBuffer input = new StringBuffer(servletContext.getRealPath("/"));
+        //StringBuffer input = new StringBuffer(servletContext.getRealPath("/"));
         
-        return input.substring(0, input.lastIndexOf(File.separator)) + "-output";
+        //return input.substring(0, input.lastIndexOf(File.separator));
+        
+        return servletContext.getRealPath("/");
         
     }
     
