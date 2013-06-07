@@ -1,21 +1,17 @@
 Windup-web
 =====================
-A servlet front-end for JBoss Windup. Build and install the Windup maven projects separately. 
-Requires the jad decompiler (http://www.varaneckas.com/jad/) to be installed and available to the container via PATH. 
+A servlet front-end for JBoss Windup and JBoss Tattletale. You may need to build and install the Windup maven projects separately. 
+Windup requires the jad decompiler (http://www.varaneckas.com/jad/) to be installed and available to the container via PATH. 
+
+The tattletale jar is available from the JBoss Maven repo and will be pullled into this project via its POM.
 
 How do I run Windup-web?
-Deploy windup.war to Tomcat7 and then point your browser to the /windup context. 
-
-There are a couple of caveats:
-
-1. Be sure Tomcat explodes the war or you won't be able to write files.
-
-2. Currently, you will need to create a separate context under $TOMCAT_HOME/webapps named /windup-output.
-This is done so that the output will not be destroyed with a fresh deploy of windup.war. 
-
+Deploy windup.war to Tomcat7 and then point your browser to the /windup context. Be sure Tomcat explodes the war or you won't be able to write files!
 
 ======================
 For more details on Windup, or for documentation on writing Windup rules, please see the documentation at:
  - https://github.com/jboss-windup/windup/wiki
+ 
+For more details on Tattletale visit its pages on the JBoss Community site.
 
 

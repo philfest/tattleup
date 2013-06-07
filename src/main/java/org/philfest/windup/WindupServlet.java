@@ -37,6 +37,8 @@ public class WindupServlet extends HttpServlet {
     
     private static final String OUTPUT = "output";
     
+    private static final String REPORT = "report";
+    
     private static final String TATTLETALE = "tattletale";
     
     private static final String WINDUP = "windup";
@@ -161,14 +163,18 @@ public class WindupServlet extends HttpServlet {
     
     private void zipOutput(String appDir) throws Exception{
     	
-    	String inpath = getRealPath();
+    	/*String inpath = getRealPath();
     	
     	String outpath = inpath.substring(0, inpath.lastIndexOf(File.separator)) + "-output" + File.separator + appDir + ".zip";
     	
     	inpath += "output" + File.separator + appDir;
     	
-    	createZip(inpath, outpath);
-
+    	createZip(inpath, outpath);*/
+  	
+    	String realpath = getRealPath();
+    	
+    	createZip(realpath + OUTPUT + File.separator + appDir, realpath + REPORT + File.separator + appDir + ".zip");
+    	
     }
     
     
@@ -271,7 +277,7 @@ public class WindupServlet extends HttpServlet {
     	
     	writer.write("Done! Please download your ");
     	
-    	writer.write("<a href='/windup-output/" + appdir + ".zip'>results here</a>.");
+    	writer.write("<a href='" + REPORT + "/" + appdir + ".zip'>results here</a>.");
     	   	 	
     	//writer.write("</body>");
     	
@@ -353,7 +359,7 @@ public class WindupServlet extends HttpServlet {
         ServletContext servletContext = getServletContext();
 
         // Get full path to this context's input dir
-        String archiveDir = servletContext.getRealPath("/input") + File.separator + appDir;
+        String archiveDir = servletContext.getRealPath("/" + INPUT) + File.separator + appDir;
         
         // Create input subdirectory based on app name 
         new File(archiveDir).mkdir();
