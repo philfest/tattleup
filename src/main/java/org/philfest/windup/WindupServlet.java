@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -31,7 +32,9 @@ import org.jboss.windup.WindupReportEngine;
 @MultipartConfig
 public class WindupServlet extends HttpServlet {
 
-    private static Logger logger = Logger.getLogger(WindupServlet.class);
+	private static final long serialVersionUID = 1L;
+
+	private static Logger logger = Logger.getLogger(WindupServlet.class);
     
     private static final String INPUT = "input";
     
@@ -44,90 +47,89 @@ public class WindupServlet extends HttpServlet {
     private static final String WINDUP = "windup";
 
     public WindupServlet() {
+    	
         super();
-    }
+        
+    }  
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
           throws ServletException, IOException {
+    	
+    	String responseMesssage = null;
+         
+    	String realPath =  this.getServletContext().getRealPath("/");
            
-        String fileName = null;
-        
-        String appName = null;
+    	String fileName = null;
         
         String appDir = null;
         
         byte[] archive = null;
         
         String inputPath = null;
-            
-        for (Part part : request.getParts()) {
-          
-            fileName = getFileName(part);
-          
-              if(fileName != null && !fileName.isEmpty()){
-                  
-                  // Get the application name from the form.
-                  // Required field that is used to derive output dir
-                  appName = request.getParameter("appName");
-                  
-                  // Add timestamp to ensure uniquenes of dir name
-                  appDir = appName + "-" + Long.toString(System.currentTimeMillis());
-                   
-                  // Get the upoaded archive as byte[]
-                  archive = getArchiveAsBytes(request, part.getName());
-                  
-                  // Write the byte[] to file
-                  inputPath = saveArchive(appDir, fileName, archive);
-                  
-              }
-          
-        } 
         
-        if(archive.length > 0){
-                        
-            try{
+        try{
             
-            	doWindup(request, inputPath, appDir);
+	        for (Part part : request.getParts()) {
+	          
+	            fileName = getFileName(part);
+	          
+	              if(fileName != null && !fileName.isEmpty()){
+	                  
+	                  // Get the application name from the form.
+	                  // Required field that is used to derive output dir
+	            	  String appName = request.getParameter("appName");
+	                  
+	                  // Add timestamp to ensure uniquenes of dir name
+	                  appDir = appName + "-" + Long.toString(System.currentTimeMillis());
+	                   
+	                  // Get the upoaded archive as byte[]
+	                  archive = getArchiveAsBytes(request, part.getName());                  
+	                  
+	                  // Write the byte[] to file
+	                  inputPath = saveArchive(realPath + INPUT + File.separator + appDir, fileName, archive);
+	                  
+	              }
+	          
+	        } 
+        
+        	if(archive.length > 0){
+                                   	
+            	String outputBaseDir = realPath + OUTPUT + File.separator + appDir + File.separator;
             
-            	doTattletale(request, inputPath, appDir);
+            	doWindup(request, inputPath, outputBaseDir + WINDUP);
+            
+            	doTattletale(request, inputPath, outputBaseDir + TATTLETALE);
             	
-            	zipOutput(appDir);
+            	zipOutput(realPath, appDir);
             	
-            	writeResponse(response, appDir);
-                      
-            } catch (Exception e){
+            	cleanup(outputBaseDir);  
             	
-            	logger.error("Could not process.", e);
+            	cleanup(realPath + INPUT + File.separator + appDir);
+            	
+            	responseMesssage = "Done! Please download your <a href='" + REPORT + "/" + appDir + ".zip'>results here</a>.";
             	
             }
-            
-            //String outputBase = getOutputPath();
-    
-            //WindupEnvironment settings = processRequest(request);
-            
-            // Initialize windup with settings  
-            //WindupReportEngine engine = new WindupReportEngine(settings);
-      
-            // Run windup 
-            //engine.generateReport(new File(inputPath), new File(outputBase + File.separator + appDir));   
-           
-            //response.sendRedirect("/windup-output/" + appDir);
-                    
+                      
+        } catch (Exception e){
+        	
+        	logger.error("Could not process.", e);
+        	
+        	responseMesssage = "Sorry. Your request could not be processed: " + e.getMessage();
+        	
         }
-  
+        
+    	writeResponse(response, responseMesssage);
+                    
     }
     
-    public void doTattletale(HttpServletRequest request, String inputPath, String appDir) throws Exception {
+    
+    public void doTattletale(HttpServletRequest request, String source, String destination) throws Exception {
     	
     	Main main = new Main();
     	
-    	main.setSource(inputPath);
+    	main.setSource(source);
     	
-    	String output = getRealPath() + OUTPUT + File.separator + appDir + File.separator + TATTLETALE;
-    	
-    	logger.info("************ TATTLETALE OUTPUT PATH " + output + " ***********************");
-    	
-    	main.setDestination(output);
+    	main.setDestination(destination);
     	
     	main.setFailOnInfo(false);
     	
@@ -142,17 +144,13 @@ public class WindupServlet extends HttpServlet {
     }
     
     
-    public void doWindup(HttpServletRequest request, String inputPath, String appDir) 
+    public void doWindup(HttpServletRequest request, String inputPath, String output) 
     		throws IOException{
     	
     	WindupEnvironment settings = processRequest(request);
         
         // Initialize windup with settings  
         WindupReportEngine engine = new WindupReportEngine(settings);
-        
-        String output = getRealPath() + OUTPUT + File.separator + appDir + File.separator + WINDUP;
-        
-        logger.info("************ WINDUP OUTPUT PATH " + output + " ***********************");
   
         // Run windup 
         engine.generateReport(new File(inputPath), new File(output)); 
@@ -161,21 +159,52 @@ public class WindupServlet extends HttpServlet {
     }
     
     
-    private void zipOutput(String appDir) throws Exception{
+    private void zipOutput(String realPath, String appDir) throws Exception{
     	
-    	/*String inpath = getRealPath();
-    	
-    	String outpath = inpath.substring(0, inpath.lastIndexOf(File.separator)) + "-output" + File.separator + appDir + ".zip";
-    	
-    	inpath += "output" + File.separator + appDir;
-    	
-    	createZip(inpath, outpath);*/
-  	
-    	String realpath = getRealPath();
-    	
-    	createZip(realpath + OUTPUT + File.separator + appDir, realpath + REPORT + File.separator + appDir + ".zip");
+    	createZip(realPath + OUTPUT + File.separator + appDir, realPath + REPORT + File.separator + appDir + ".zip");
     	
     }
+    
+    
+    private void cleanup(String path) throws IOException{
+    	
+    	delete(new File(path));
+    	
+    }
+    
+    public void delete(File file) throws IOException{
+     
+        	if(file.isDirectory()){
+     
+        		//directory is empty, then delete it
+        		if(file.list().length==0){
+     
+        		   file.delete();
+     
+        		}else{
+     
+        		   //list all the directory contents
+            	   String files[] = file.list();
+     
+            	   for (String temp : files) {
+            	      //construct the file structure
+            	      File fileDelete = new File(file, temp);
+     
+            	      //recursive delete
+            	     delete(fileDelete);
+            	   }
+     
+            	   //check the directory again, if empty then delete it
+            	   if(file.list().length==0){
+               	     file.delete();
+            	   }
+        		}
+     
+        	}else{
+        		//if file, then delete it
+        		file.delete();
+        	}
+        }
     
     
 	public void createZip(String directoryPath, String zipPath) throws IOException {
@@ -205,8 +234,10 @@ public class WindupServlet extends HttpServlet {
 			bOut.close();
 			
 			fOut.close();
+			
 		}
 	}
+	
 	
 	private void addFileToZip(ZipArchiveOutputStream zOut, String path, String base) throws IOException {
 		
@@ -224,8 +255,6 @@ public class WindupServlet extends HttpServlet {
 			
 			try {
 			
-				logger.info("----- addFileToZip file "+f.getAbsolutePath());
-				
 				fInputStream = new FileInputStream(f);
 				
 				IOUtils.copy(fInputStream, zOut);
@@ -239,8 +268,6 @@ public class WindupServlet extends HttpServlet {
 			}
 		
 		} else {
-			
-			logger.info("-------------- addFileToZip directories "+f.getAbsolutePath());
 			
 			zOut.closeArchiveEntry();
 			
@@ -258,34 +285,20 @@ public class WindupServlet extends HttpServlet {
 		
 		}
 	}
+   
     
-    public void writeResponse(HttpServletResponse response, String appdir) throws IOException {
+    public void writeResponse(HttpServletResponse response, String message) throws IOException{
     	
     	PrintWriter writer = response.getWriter();
     	
     	response.setContentType("text/html");
     	
-    	//writer.write("<html>");
-    	
-    	//writer.write("<head>");
-    	
-    	//writer.write("<title>Analysis Results</title>");
-   	 	
-    	//writer.write("</head>");
-    	
-    	//writer.write("<body>");
-    	
-    	writer.write("Done! Please download your ");
-    	
-    	writer.write("<a href='" + REPORT + "/" + appdir + ".zip'>results here</a>.");
-    	   	 	
-    	//writer.write("</body>");
-    	
-    	//writer.write("</html>");
+    	writer.write(message);
     	
     	writer.flush();
     	
     	writer.close();
+    	
     }
 
     
@@ -354,12 +367,12 @@ public class WindupServlet extends HttpServlet {
     }
 
     
-    private String saveArchive(String appDir, String fileName, byte[] b) throws IOException {
+    private String saveArchive(String archiveDir, String fileName, byte[] b) throws IOException {
         
         ServletContext servletContext = getServletContext();
 
         // Get full path to this context's input dir
-        String archiveDir = servletContext.getRealPath("/" + INPUT) + File.separator + appDir;
+        //String archiveDir = servletContext.getRealPath("/" + INPUT) + File.separator + appDir;
         
         // Create input subdirectory based on app name 
         new File(archiveDir).mkdir();
@@ -369,8 +382,6 @@ public class WindupServlet extends HttpServlet {
         
         // Create the archive file
         File archive = new File(fullPath);
-        
-        logger.info("Writing archive to " + fullPath);
                
         FileOutputStream os = new FileOutputStream(archive);
 
@@ -381,19 +392,6 @@ public class WindupServlet extends HttpServlet {
         os.close();
         
         return fullPath; 
-        
-    }
-    
-    
-    private String getRealPath(){
-        
-        ServletContext servletContext = this.getServletContext();
-        
-        //StringBuffer input = new StringBuffer(servletContext.getRealPath("/"));
-        
-        //return input.substring(0, input.lastIndexOf(File.separator));
-        
-        return servletContext.getRealPath("/");
         
     }
     
