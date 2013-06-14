@@ -108,6 +108,10 @@ public class WindupServlet extends HttpServlet {
             	
             	responseMesssage = "Done! Please download your <a href='" + REPORT + "/" + appDir + ".zip'>results here</a>.";
             	
+            } else {
+            	
+            	responseMesssage = "Sorry. Your request could not be processed: Empty archive.";
+            	
             }
                       
         } catch (Exception e){
@@ -154,7 +158,6 @@ public class WindupServlet extends HttpServlet {
   
         // Run windup 
         engine.generateReport(new File(inputPath), new File(output)); 
-
         
     }
     
