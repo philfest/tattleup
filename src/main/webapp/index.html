@@ -11,15 +11,63 @@
     </script>
 	<![endif]-->
 
-<script> 
+	<style type="text/css" media="screen, print, projection">
+		body,
+		html {
+			margin:0;
+			padding:0;
+			color:#000;
+			background:#eb1f2d;
+		}
+		#wrap {
+			width:850px;
+			margin:0 auto;
+			background:#f9ca28;
+		}
+		#header {
+	    	padding:5px 10px;
+			background:white;
+		}
+		#text {
+			padding:5px 10px;
+			background:white;
+			
+		}
+		#main {
+			float:left;
+			width:530px;
+			padding:10px;
+			background:#f28224;
+			color:white;
+		}
+		#sidebar {
+			float:right;
+			width:280px;
+			padding:10px;
+			background:#f9ca28;			
+		}
+		#sidebar td {
+			color:white;
+		}
+		#footer {
+			clear:both;
+			padding:5px 10px;
+			background:#eb1f2d;
+		}
+		#footer p {
+			margin:0;
+	    }
+	</style>
+
+
+	<script> 
     	var options = { 
     	    url:        	'WindupInput', 
     	    beforeSubmit: 	validateForm,
     	    success:		showResponse,
     	    forceSync:		'true'
     	};
-
-    
+   
         // wait for the DOM to be loaded 
         $(document).ready(function() { 
             // bind 'myForm' and provide a simple callback function 
@@ -66,80 +114,88 @@
         	document.getElementById("text").innerHTML = responseText;
         }
  
-</script>
+	</script>
 
 </head>
 <body>
 
-<div id="top" align="center">
-<table id="logo" cellspacing=10 cellpadding=10>
-    <tr>     
-        <td><img src="1656287.gif"/></td>
-    </tr>
-</table>
+<div id="wrap">
+	
+	<div id="header" align='center'>
+	
+		<img src="1656287.gif"/>
+	
+	</div>
+	
+	<div id="text" align='center'></div>
+	
+	<div id="main">
+	
+		Welcome to the JBoss Migration Tool.
+		<BR><BR>
+		This tool uses 2 open source projects from JBoss, Windup and Tattletale, to analyze your application archive. 
+		Specifically Windup examines the archive for potential elements within it (proprietary configuration or code for exampe), and
+		Tattletale takes a more general tack and looks for missing jar dependencies and classes. 
+		Thus the tools are complementary, and this site is intended as an easy and automated way to use them. 
+		<BR><BR>
+		To analyze your archive simply use the form on the right and...
+		<ol>
+			<li>Choose a name for your application (use alphanumeric characters only) .</li>
+			<li>Upload the application's archive (ear or war).</li>
+			<li>Identify the packages to be included or excluded from analysis in a colon delimited list (e.g. com.abc:org.def).</li> 
+			<li>Click submit.</li>
+		</ol>
+		The tool will then analyze the archive and when finished will zip up the results from both tools for downloading.
+		To learn more about the results and how you can run both Tattletale and Windup on your own, visit the projects on the web.
+		<uL>
+			<li>The Windup projet is currently <a href="https://github.com/windup/">on GitHub</a>.</li>
+			<li>The Tattletale project can be found on the <a href='http://www.jboss.org/tattletale'>JBoss Community website</a>.</li>
+		</uL>
+	
+	</div>
+	
+	<div id="sidebar">
+
+		<form id="myForm"  name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post">
+		<table id="input" border=0 cellspacing=5 cellpadding=5>
+			<tr>
+			   <td>Application name*:
+			   <BR>
+			   <input type="text" name="appName" size=45/></td>
+		    </tr> 
+			<tr>
+			   <td>Archive file*:
+			   <BR>
+			   <input type="file" name="uploadFile" /></td>
+			</tr> 
+			<tr>
+			   <td nowrap>Packages to analyze*:
+			   <BR>
+			   <input type="text" name="javaPkgs" size=45 maxLength=250/></td>
+			</tr> 
+			<tr>
+			   <td nowrap>Packages to exclude:
+			   <BR>
+			   <input type="text" name="excludePkgs" size=45 maxLength=250 /></td>
+			</tr> 
+			<tr>
+			   <td>*Required</td>
+			</tr> 
+			<tr>
+			   <td><input type="submit" name="action" value="submit"/></td>
+			</tr>
+		</table>
+		<input type="hidden" name="targetPlatform" value=""/>
+		<input type="hidden" name="fetchRemote" value=""/>
+		<input type="hidden" name="logLevel" value=""/>
+		<input type="hidden" name="captureLog" value=""/>
+		</form>	
+	
+	</div>
+	
+	<div id='footer'/>
+
 </div>
 
-<br>
-
-<div id="text">
-Welcome to the JBoss Migration Tool.<BR><BR>
-
-This tool uses 2 open source projects from JBoss, Windup and Tattletale, to analyze your application archive. 
-Windup specifically examines the archive for potential elements within it (proprietary configuration or code for exampe), and
-Tattletale takes a more general tack and looks for missing jar dependencies and classes. 
-Thus the tools are complementary, and this site is intended as an easy and automated way to use them. 
-<BR><BR>
-To analyze your archive simply:
-<ol>
-<li>Choose a name for your application (use alphanumeric characters only) .</li>
-<li>Upload the application's archive (ear or war).</li>
-<li>Identify the packages to be included or excluded from analysis in a colon delimited list (e.g. com.abc:org.def).</li> 
-<li>Click submit.</li>
-</ol>
-The tool will then analyze the archive and when finished will zip up the results from both tools for downloading.
-To learn more about the results and how you can run both Tattletale and Windup on your own, please visit the project's on the web.
-</div>
-<BR>
-<div id="input" align=center>
-<!-- <form name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post"  onsubmit="return validateForm()"> -->
-<form id="myForm"  name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post">
-<table id="input" border=0 cellspacing=5 cellpadding=5>
-	<tr>
-	   <td align='right'>Application name*:</td>
-	   <td><input type="text" name="appName" size=50/></td>
-    </tr> 
-	<tr>
-	   <td align='right'>Archive file*:</td>
-	   <td><input type="file" name="uploadFile" /></td>
-	</tr> 
-	<tr>
-	   <td align='right' nowrap>Packages to analyze*:</td>
-	   <td><input type="text" name="javaPkgs" size=100 maxLength=250/></td>
-	</tr> 
-	<tr>
-	   <td align='right' nowrap>Packages to exclude:</td>
-	   <td><input type="text" name="excludePkgs" size=100 maxLength=250 /></td>
-	</tr> 
-	<tr>
-	   <td>*Required</td>
-	   <td><input type="submit" name="action" value="submit"/></td>
-	</tr>
-</table>
-<input type="hidden" name="targetPlatform" value=""/>
-<input type="hidden" name="fetchRemote" value=""/>
-<input type="hidden" name="logLevel" value=""/>
-<input type="hidden" name="captureLog" value=""/>
-</form>
-</div>
-<div id="ref">
-References:
-<uL>
-<li>You can find out more about Windup from its <a href="https://github.com/windup/windup/wiki">wiki on GitHub</a>.
-</li>
-<li>
-The Tattletale project can be found on the <a href='http://www.jboss.org/tattletale'>JBoss Community website</a>.
-</li>
-</uL>
-</div>
 </body>
 </html>
