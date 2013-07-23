@@ -11,55 +11,65 @@
     </script>
 	<![endif]-->
 
-	<style type="text/css" media="screen, print, projection">
-		body,
-		html {
-			margin:0;
-			padding:0;
-			color:#000;
-			background:#eb1f2d;
-		}
-		#wrap {
-			width:850px;
-			margin:0 auto;
-			background:#a5ce37;
-		}
-		#header {
-	    	padding:5px 10px;
-			background:white;
-		}
-		#text {
-			padding:5px 10px;
-			background:#f9ca28;
-		}
-		#main {
-			float:left;
-			width:530px;
-			padding:10px;
-			background:#f28224;
-			color:white;
-		}
-		#sidebar {
-			float:right;
-			width:280px;
-			padding:10px;
-			background:#a5ce37;			
-		}
-		#sidebar td {
-			color:white;
-		}
-		#footer {
-			clear:both;
-			padding:5px 10px;
-			background:#f9ca28;
-		}
-		#footer p {
-			margin:0;
-	    }
-	</style>
+<style type="text/css" media="screen, print, projection">
+	body,html {
+		margin: 0;
+		padding: 0;
+		color: #000;
+		background: white;
+	}
+	
+	#wrap {
+		width: 1200px;
+		margin: 0 auto;
+		background: #a5ce37;
+	}
+	
+	#header {
+		padding: 5px 10px;
+		background: #eb1b24;
+	}
+	
+	#text {
+		padding: 5px 10px;
+		background: #f28224;
+	}
+	
+	#main {
+		float: left;
+		width: 700px;
+		padding: 10px;
+		background: #f9ca28;
+	}
+	
+	#sidebar {
+		float: right;
+		width: 450px;
+		padding: 10px;
+		background: #a5ce37;
+	}
+	
+	#optional-config {
+		clear: both;
+		padding: 5px 10px;
+		background: #f28224;
+	}
+	
+	#optional-config  p {
+		margin: 0;
+	}
+	
+	#o-c-tbl-div{
+		background: #a5ce37;
+	}	
+	
+	.small{
+		font-size: 12px;
+	}
 
+</style>
 
-	<script> 
+<script> 
     	var options = { 
     	    url:        	'WindupInput', 
     	    beforeSubmit: 	validateForm,
@@ -71,6 +81,33 @@
         $(document).ready(function() { 
             // bind 'myForm' and provide a simple callback function 
             $('#myForm').ajaxForm(options); 
+
+            $('#o-c-tbl-div').hide();
+            $('#o-c-hide').hide();
+
+            $("#o-c-span").click(function(){
+                $('#o-c-tbl-div').toggle();
+                $('#o-c-hide').toggle();
+                $('#o-c-show').toggle();
+              });
+
+            $('#all-reports').click(function(){
+
+                if(this.checked == true){
+                	//alert("hi");
+                	$('.reports').prop('checked', true);
+                	$('#all-reports').prop('checked', false);
+                	$('#clear-reports').prop('checked', false);
+                 }           	
+            }); 
+
+            $('#clear-reports').click(function(){
+
+                if(this.checked == true){
+                	//alert("hi");
+                	$('.reports').prop('checked', false);
+                 }           	
+            }); 
         }); 
 
         $('#myForm').submit(function() { 
@@ -103,6 +140,30 @@
               alert("Packages to analyze is a required field.");
               return false;
             }    
+            
+            var fields = $("input[name='reports']").serializeArray(); 
+            if (fields.length == 0) 
+            { 
+                alert('You must select at least one report type to generate'); 
+                // cancel submit
+                return false;
+            } 
+            
+            fields = $("input[name='profiles']").serializeArray(); 
+            if (fields.length == 0) 
+            { 
+                alert('You must select at least one profile to test against.'); 
+                // cancel submit
+                return false;
+            } 
+            
+            fields = $("input[name='scans']").serializeArray(); 
+            if (fields.length == 0) 
+            { 
+                alert('You must select at least one archive type to scan.'); 
+                // cancel submit
+                return false;
+            } 
 
             document.getElementById("text").innerHTML = 'Your archive is now being analyzed. This could take a while...';
             
@@ -117,8 +178,10 @@
 
 </head>
 <body>
-
-<div id="wrap">
+	
+	<form id="myForm"  name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post">
+	
+	<div id="wrap">
 	
 	<div id="header" align='center'>
 	
@@ -126,22 +189,19 @@
 	
 	</div>
 	
-	<div id="text" align='center'></div>
+	<div id="text" align='center'>Welcome to the JBoss Migration Tool</div>
 	
 	<div id="main">
-	
-		Welcome to the JBoss Migration Tool.
-		<BR><BR>
-		This tool uses 2 open source projects from JBoss, Windup and Tattletale, to analyze your application archive. 
-		Specifically Windup examines the archive for potential elements within it (proprietary configuration or code for exampe), and
-		Tattletale takes a more general tack and looks for missing jar dependencies and classes. 
+		This site is a front end for two open source projects from JBoss, Windup and Tattletale, to analyze your application archive (ear or war). 
+		Windup examines the archive specifically from migration perspective and identifies potential risky elements (proprietary configuration or code for example). 
+		Tattletale on the other hand takes a more general tack and generates a wider variety of reporting, including missing jar dependencies and classes. 
 		Thus the tools are complementary, and this site is intended as an easy and automated way to use them. 
 		<BR><BR>
 		To analyze your archive simply use the form on the right and...
 		<ol>
 			<li>Choose a name for your application (use alphanumeric characters only) .</li>
 			<li>Upload the application's archive (ear or war).</li>
-			<li>Identify the packages to be included or excluded from analysis in a colon delimited list (e.g. com.abc:org.def).</li> 
+			<li>Identify the packages to be included for analysis in a colon delimited list (e.g. com.abc:org.def).</li> 
 			<li>Click submit.</li>
 		</ol>
 		The tool will then analyze the archive and when finished will zip up the results from both tools for downloading.
@@ -150,51 +210,134 @@
 			<li>The Windup projet is currently <a href="https://github.com/windup/">on GitHub</a>.</li>
 			<li>The Tattletale project can be found on the <a href='http://www.jboss.org/tattletale'>JBoss Community website</a>.</li>
 		</uL>
-	
 	</div>
 	
-	<div id="sidebar">
-
-		<form id="myForm"  name="myForm"  action="WindupInput" enctype="multipart/form-data" method="post">
-		<table id="input" border=0 cellspacing=5 cellpadding=5>
+	<div id="sidebar">	
+		Required Configuration	
+		<table id="required-config" border=0 cellspacing=5 cellpadding=5>		
 			<tr>
-			   <td>Application name*:
+			   <td>Application name:
 			   <BR>
 			   <input type="text" name="appName" size=45/></td>
 		    </tr> 
+		    <tr>
+		    	<td nowrap>Colon-delimited list of packages to analyze <span class='small'>(Windup only)</span>:
+				   <BR>
+				   <input type="text" name="javaPkgs" size=45 maxLength=250/></td>
+			</tr>
 			<tr>
-			   <td>Archive file*:
+			   <td>Archive file:
 			   <BR>
 			   <input type="file" name="uploadFile" /></td>
-			</tr> 
-			<tr>
-			   <td nowrap>Packages to analyze*:
-			   <BR>
-			   <input type="text" name="javaPkgs" size=45 maxLength=250/></td>
-			</tr> 
-			<tr>
-			   <td nowrap>Packages to exclude:
-			   <BR>
-			   <input type="text" name="excludePkgs" size=45 maxLength=250 /></td>
-			</tr> 
-			<tr>
-			   <td>*Required</td>
 			</tr> 
 			<tr>
 			   <td><input type="submit" name="action" value="submit"/></td>
 			</tr>
 		</table>
-		<input type="hidden" name="targetPlatform" value=""/>
-		<input type="hidden" name="fetchRemote" value=""/>
-		<input type="hidden" name="logLevel" value=""/>
-		<input type="hidden" name="captureLog" value=""/>
-		</form>	
 	
-	</div>
-	
-	<div id='footer'/>
+	</div>	
 
+	<div id="optional-config">	
+	Optional Configuration&nbsp;<span id='o-c-span'><span id='o-c-show' class=small>(show)</span><span id='o-c-hide' class=small>(hide)</span></span>
+		<div id="o-c-tbl-div">
+			<table id="o-c-tbl" border=0 cellspacing=5 cellpadding=5>			   
+				<tr>   
+				  <td>				  
+					  Profiles to be resolved against during Tattletale runs:
+						<table>
+							<tr>			
+								<td><input type="checkbox" name="profiles" value="java5" />Java 5</td>			
+								<td><input type="checkbox" name="profiles" value="java6" checked/>Java 6</td>			
+								<td><input type="checkbox" name="profiles" value="ee5" />JEE 5</td>			
+								<td><input type="checkbox" name="profiles" value="ee6" checked/>JEE 6</td>			
+							</tr>			
+							<tr>
+								<td><input type="checkbox" name="profiles" value="seam22" />Seam 2.2</td>			
+								<td><input type="checkbox" name="profiles" value="cdi10" />CID 1.0</td>		
+								<td><input type="checkbox" name="profiles" value="spring25" />Spring 2.5</td>			
+								<td><input type="checkbox" name="profiles" value="spring30" />Spring 3.0</td>							
+							</tr>			
+						</table>			  
+				  </td>
+				</tr>
+				<tr>
+					<td>
+						Reports to be generated	by Tattletale:
+						<table>	
+							<tr>
+								<td colspan=2><input type="checkbox" class="reports" name="all-reports" id='all-reports' value='all'/>All</td>
+								<td><input type="checkbox" class="reports" name="clear-reports" id='clear-reports' value='clear' />Clear all</td>
+							</tr>
+							<tr>
+								<td><input type="checkbox" class="reports" name="reports" value="classdependants"  checked/>Class dependants</td>	
+						
+								<td><input type="checkbox" class="reports" name="reports" value="classdependson"  checked/>Class depends on</td>
+						
+								<td><input type="checkbox" class="reports" name="reports" value="dependants"  checked/>Dependants</td>
+						
+								<td><input type="checkbox" class="reports" name="reports" value="dependson"  checked/>Depends on</td>
+							</tr><tr>
+									
+								<td><input type="checkbox" class="reports" name="reports" value="transitivedependants"  checked/>Transitive dependants</td>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="transitivedependson"  checked/>Transitive depends on</td>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="circulardependency"  checked/>Circular dependency</td>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="classlocation"  checked/>Class location</td>
+							</tr><tr>	
+								
+								<td><input type="checkbox" class="reports" name="reports" value="sealed"  checked/>Sealed information</td>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="sign"  checked/>Signed information</td>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="eliminatejars" checked />Eliminate jars</td>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="invalidversion"  checked/>Invalid version</td>
+							
+							</tr><tr>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="multiplejars"  checked/>Multiple jars</td>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="multiplejarspackage"  checked/>Multiple jars package</td>
+										
+								<td><input type="checkbox" class="reports" name="reports" value="multiplelocations"  checked/>Multiple locations</td>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="unusedjar"  checked/>Unused jar</td>
+								
+							</tr><tr>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="noversion"  checked/>No version</td>
+								
+								<td><input type="checkbox" class="reports" name="reports" value="osgi"  checked/>OSGI</td>
+								
+							</tr>
+						</table>					
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Archive types that Tattletale should scan:
+						<table>				
+							<tr>
+								<td><input type="checkbox" name="scans" value="ear" checked/>Ear</td>
+								<td><input type="checkbox" name="scans" value="war" checked/>War</td>
+								<td><input type="checkbox" name="scans" value="jar" checked/>Jar</td>
+							</tr>			
+						</table>
+					</td>
+				</tr>
+				<tr>  			
+				   <td nowrap>Should Windup try to fetch remote POMs for unknown JAR files?<BR>
+				   	<span class='small'>(If you are running Windup without an internet connection, it's a good idea to set this to false)</span>
+				   <BR>
+				   <input type="radio" name="fetchRemote " value="true" checked>True<br>
+					<input type="radio" name="fetchRemote " value="false">False</td>
+				</tr>				
+			</table>
+		</div>
+	</div>	
 </div>
-
+</form>	
 </body>
 </html>

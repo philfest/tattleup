@@ -4,12 +4,13 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.Properties;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -23,6 +24,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.jboss.tattletale.Main;
 import org.jboss.windup.WindupEnvironment;
@@ -61,9 +63,7 @@ public class WindupServlet extends HttpServlet {
            
     	String fileName = null;
         
-        String appDir = null;
-        
-        byte[] archive = null;
+        String appName = null;
         
         String inputPath = null;
         
@@ -75,44 +75,32 @@ public class WindupServlet extends HttpServlet {
 	          
 	              if(fileName != null && !fileName.isEmpty()){
 	                  
-	                  // Get the application name from the form.
-	                  // Required field that is used to derive output dir
-	            	  String appName = request.getParameter("appName");
+	            	  // Get app name request parm. Append timestamp to it for uniqueness
+	                  appName = request.getParameter("appName") + "-" + nowToString();               
 	                  
-	                  // Add timestamp to ensure uniquenes of dir name
-	                  appDir = appName + "-" + Long.toString(System.currentTimeMillis());
-	                   
-	                  // Get the upoaded archive as byte[]
-	                  archive = getArchiveAsBytes(request, part.getName());                  
-	                  
-	                  // Write the byte[] to file
-	                  inputPath = saveArchive(realPath + INPUT + File.separator + appDir, fileName, archive);
+	                  // Convert uploaded archive to byte[]. Write it to file and save the path.
+	                  inputPath = saveArchive(realPath + INPUT + File.separator + appName, fileName, getArchiveAsBytes(request, part.getName()));
 	                  
 	              }
 	          
 	        } 
-        
-        	if(archive.length > 0){
                                    	
-            	String outputBaseDir = realPath + OUTPUT + File.separator + appDir + File.separator;
-            
-            	doWindup(request, inputPath, outputBaseDir + WINDUP);
-            
-            	doTattletale(request, inputPath, outputBaseDir + TATTLETALE);
-            	
-            	zipOutput(realPath, appDir);
-            	
-            	cleanup(outputBaseDir);  
-            	
-            	cleanup(realPath + INPUT + File.separator + appDir);
-            	
-            	responseMesssage = "Done! Please download your <a href='" + REPORT + "/" + appDir + ".zip'>results here</a>.";
-            	
-            } else {
-            	
-            	responseMesssage = "Sorry. Your request could not be processed: Empty archive.";
-            	
-            }
+        	String outputBaseDir = realPath + OUTPUT + File.separator + appName + File.separator;
+        
+        	doWindup(request, inputPath, outputBaseDir + WINDUP);
+        
+        	doTattletale(request, inputPath, outputBaseDir, realPath + INPUT + File.separator + appName);
+        	
+        	zipOutput(realPath, appName);
+        	
+        	cleanupAll(outputBaseDir, realPath + INPUT + File.separator + appName);
+        	
+        	//cleanup(outputBaseDir);  
+        	
+        	//cleanup(realPath + INPUT + File.separator + appName);
+        	
+        	responseMesssage = "Done! Please download your <a href='" + REPORT + "/" + appName + ".zip'>results here</a>.";
+
                       
         } catch (Exception e){
         	
@@ -124,10 +112,14 @@ public class WindupServlet extends HttpServlet {
         
     	writeResponse(response, responseMesssage);
                     
-    }
+    } 
     
     
-    public void doTattletale(HttpServletRequest request, String source, String destination) throws Exception {
+    public void doTattletale(HttpServletRequest request, String source, String baseDir, String propsDir) throws Exception {
+    	
+    	String destination = baseDir + TATTLETALE;
+    	
+    	String propsFile = processTattletaleRequest(request, propsDir);
     	
     	Main main = new Main();
     	
@@ -143,6 +135,8 @@ public class WindupServlet extends HttpServlet {
     	
     	main.setDeleteOutputDirectory(true);
     	
+    	main.setConfiguration(propsFile);
+    	
     	main.execute();
     	
     }
@@ -151,7 +145,7 @@ public class WindupServlet extends HttpServlet {
     public void doWindup(HttpServletRequest request, String inputPath, String output) 
     		throws IOException{
     	
-    	WindupEnvironment settings = processRequest(request);
+    	WindupEnvironment settings = processWindupRequest(request);
         
         // Initialize windup with settings  
         WindupReportEngine engine = new WindupReportEngine(settings);
@@ -303,9 +297,107 @@ public class WindupServlet extends HttpServlet {
     	writer.close();
     	
     }
+    
+    
+    public String processTattletaleRequest(HttpServletRequest request, String outputBaseDir) throws Exception{
+    	
+    	Properties props = new Properties();
+    	
+    	String file = outputBaseDir + File.separator + "jboss-tattletale.properties";
+    	
+    	/*
+    	if (StringUtils.isNotBlank(request.getParameter("classloader"))) {
+    		
+    		props.setProperty("classloader", request.getParameter("classloader"));
+    		
+        }
+        */
+    	
+    	if (!ArrayUtils.isEmpty(request.getParameterValues("profiles"))) {
+    		
+    		String profiles = joinStrings(request.getParameterValues("profiles"), null);
+    		
+    		props.setProperty("profiles", profiles);
+    		
+        }
+    	
+    	if (!ArrayUtils.isEmpty(request.getParameterValues("reports"))) {
+    		
+    		String reports = joinStrings(request.getParameterValues("reports"), null);
+    		
+    		props.setProperty("reports", reports);
+    		
+        }
+    	
+    	
+    	if (!ArrayUtils.isEmpty(request.getParameterValues("scans"))) {
+    		
+    		String scans = joinStrings(request.getParameterValues("scans"), null);
+    		
+    		props.setProperty("scan", scans);
+    		
+        }
+    	
+    	
+    	/*
+    	if (StringUtils.isNotBlank(request.getParameter("excludes"))) {
+    		
+    		props.setProperty("excludes", request.getParameter("excludes"));
+    		
+        }
+        */
+    	
+    	/*
+    	if (StringUtils.isNotBlank(request.getParameter("blacklisted"))) {
+    		
+    		props.setProperty("blacklisted", request.getParameter("blacklisted"));
+    		
+        }
+        */
+
+    	
+    	/*
+    	if (StringUtils.isNotBlank(request.getParameter("enableDot"))) {
+    		
+    		props.setProperty("enableDot", request.getParameter("enableDot"));
+    		
+        }
+    	
+    	if (StringUtils.isNotBlank(request.getParameter("graphvizDot"))) {
+    		
+    		props.setProperty("graphvizDot", request.getParameter("graphvizDot"));
+    		
+        }  	
+        */
+    	
+    	logger.info("TATTLETALE PROPS: " + props.toString());
+    	
+    	props.store(new FileWriter(file), null);  	
+    	
+    	return file;
+    	 	
+    }
+    
+    private String joinStrings(String[] strings, String token){
+    	
+    	if (token ==null) token = ",";
+    	
+    	StringBuffer sb = new StringBuffer("");
+    	
+    	for(int i = 0; i < strings.length; i++){
+    		
+    			sb.append(strings[i] + token);
+    		
+    	}
+    	
+    	sb.deleteCharAt(sb.lastIndexOf(token));
+    	
+    	return sb.toString();
+    	
+    }
 
     
-    public WindupEnvironment processRequest(HttpServletRequest request) {
+    public WindupEnvironment processWindupRequest(HttpServletRequest request) {
         
             // Grab settings from  request. Some of these may or may not be 
             // text fields w/in the form so do sanity check first
@@ -315,18 +407,11 @@ public class WindupServlet extends HttpServlet {
                 settings.setPackageSignature(request.getParameter("javaPkgs"));
             } 
 
-            if (StringUtils.isNotBlank(request.getParameter("excludePkgs"))) {
-                settings.setExcludeSignature(request.getParameter("excludePkgs"));
-            }
-
-            if (StringUtils.isNotBlank(request.getParameter("targetPlatform"))) {
-                settings.setTargetPlatform(request.getParameter("targetPlatform"));
-            }
-
             if (StringUtils.isNotBlank(request.getParameter("fetchRemote")) ) {
                 settings.setFetchRemote(request.getParameter("fetchRemote"));
             }
             
+            /*
             settings.setLogLevel("info");
             if (StringUtils.isNotBlank(request.getParameter("logLevel"))) {
                 settings.setLogLevel(request.getParameter("logLevel"));
@@ -337,6 +422,8 @@ public class WindupServlet extends HttpServlet {
                captureLog = true; 
             }
             settings.setCaptureLog(captureLog);
+            
+            */
             
             logger.info(settings.toString());
  
@@ -372,11 +459,6 @@ public class WindupServlet extends HttpServlet {
     
     private String saveArchive(String archiveDir, String fileName, byte[] b) throws IOException {
         
-        ServletContext servletContext = getServletContext();
-
-        // Get full path to this context's input dir
-        //String archiveDir = servletContext.getRealPath("/" + INPUT) + File.separator + appDir;
-        
         // Create input subdirectory based on app name 
         new File(archiveDir).mkdir();
         
@@ -396,6 +478,21 @@ public class WindupServlet extends HttpServlet {
         
         return fullPath; 
         
+    }
+    
+    private String nowToString(){
+    	
+    	SimpleDateFormat sdf = new SimpleDateFormat("MMddyy-HHmm");
+    	
+    	return sdf.format(new java.util.Date());
+    }
+    
+    private void cleanupAll(String outputDir, String inputDir) throws IOException{
+    	
+    	cleanup(outputDir);  
+    	
+    	cleanup(inputDir);
+    	
     }
     
 

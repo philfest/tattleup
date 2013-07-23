@@ -7,7 +7,7 @@
 	<packaging>war</packaging>
 
 	<build>
-		<finalName>windup</finalName>
+		<finalName>tattleup</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>

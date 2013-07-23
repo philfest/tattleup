@@ -8,7 +8,7 @@
 	</appender>
 	<appender name="FA" class="org.apache.log4j.FileAppender">
 		<!--  <param name="File" value="/opt/jboss/windup/logs/windup.log"/>  -->
-		<param name="File" value="//Users/Phil/logs/jboss/windup.log"/>		
+		<param name="File" value="/Users/Phil/logs/jboss/tattleup.log"/>		
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{ISO8601} [%t] %-5p %c %x - %m%n" />
 		</layout>
