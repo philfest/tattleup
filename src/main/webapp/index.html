@@ -20,7 +20,7 @@
 	}
 	
 	#wrap {
-		width: 1200px;
+		width: 1000px;
 		margin: 0 auto;
 		background: #a5ce37;
 	}
@@ -37,14 +37,14 @@
 	
 	#main {
 		float: left;
-		width: 700px;
+		width: 580px;
 		padding: 10px;
 		background: #f9ca28;
 	}
 	
 	#sidebar {
 		float: right;
-		width: 450px;
+		width: 370px;
 		padding: 10px;
 		background: #a5ce37;
 	}
@@ -250,8 +250,6 @@
 								<td><input type="checkbox" name="profiles" value="java6" checked/>Java 6</td>			
 								<td><input type="checkbox" name="profiles" value="ee5" />JEE 5</td>			
 								<td><input type="checkbox" name="profiles" value="ee6" checked/>JEE 6</td>			
-							</tr>			
-							<tr>
 								<td><input type="checkbox" name="profiles" value="seam22" />Seam 2.2</td>			
 								<td><input type="checkbox" name="profiles" value="cdi10" />CID 1.0</td>		
 								<td><input type="checkbox" name="profiles" value="spring25" />Spring 2.5</td>			
@@ -276,16 +274,16 @@
 								<td><input type="checkbox" class="reports" name="reports" value="dependants"  checked/>Dependants</td>
 						
 								<td><input type="checkbox" class="reports" name="reports" value="dependson"  checked/>Depends on</td>
-							</tr><tr>
-									
+															
 								<td><input type="checkbox" class="reports" name="reports" value="transitivedependants"  checked/>Transitive dependants</td>
 								
 								<td><input type="checkbox" class="reports" name="reports" value="transitivedependson"  checked/>Transitive depends on</td>
 								
+							</tr><tr>
+							
 								<td><input type="checkbox" class="reports" name="reports" value="circulardependency"  checked/>Circular dependency</td>
 								
-								<td><input type="checkbox" class="reports" name="reports" value="classlocation"  checked/>Class location</td>
-							</tr><tr>	
+								<td><input type="checkbox" class="reports" name="reports" value="classlocation"  checked/>Class location</td>	
 								
 								<td><input type="checkbox" class="reports" name="reports" value="sealed"  checked/>Sealed information</td>
 								
@@ -304,8 +302,6 @@
 								<td><input type="checkbox" class="reports" name="reports" value="multiplelocations"  checked/>Multiple locations</td>
 								
 								<td><input type="checkbox" class="reports" name="reports" value="unusedjar"  checked/>Unused jar</td>
-								
-							</tr><tr>
 								
 								<td><input type="checkbox" class="reports" name="reports" value="noversion"  checked/>No version</td>
 								
@@ -331,7 +327,7 @@
 				   <td nowrap>Should Windup try to fetch remote POMs for unknown JAR files?<BR>
 				   	<span class='small'>(If you are running Windup without an internet connection, it's a good idea to set this to false)</span>
 				   <BR>
-				   <input type="radio" name="fetchRemote " value="true" checked>True<br>
+				   <input type="radio" name="fetchRemote " value="true" checked>True
 					<input type="radio" name="fetchRemote " value="false">False</td>
 				</tr>				
 			</table>

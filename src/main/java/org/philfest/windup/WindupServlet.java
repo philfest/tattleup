@@ -95,10 +95,6 @@ public class WindupServlet extends HttpServlet {
         	
         	cleanupAll(outputBaseDir, realPath + INPUT + File.separator + appName);
         	
-        	//cleanup(outputBaseDir);  
-        	
-        	//cleanup(realPath + INPUT + File.separator + appName);
-        	
         	responseMesssage = "Done! Please download your <a href='" + REPORT + "/" + appName + ".zip'>results here</a>.";
 
                       
