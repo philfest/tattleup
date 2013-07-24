@@ -2,21 +2,22 @@ Tattleup
 =====================
 
 What is Tattleup?
-A servlet front-end for JBoss Windup and JBoss Tattletale. You may need to build and install the Windup maven projects separately. 
+A jee servlet that acts as a front-end to JBoss Windup (https://github.jboss-windup/windup) and JBoss Tattletale (http://www.jboss.org/tattletale). Tattleup = Tattletale + Windup. Very clever.
 
-Windup requires the jad decompiler (http://www.varaneckas.com/jad/) to be installed and available to the container via PATH. 
+What does it do?
+It allows you to upload a JEE archive (ear or war) and have it analyzed by Windup or Tattletale or both.
 
-The tattletale jar is available from the JBoss Maven repo and will be pullled into this project via its POM.
+What does that mean?
+You can make sure that your archive is fit and ready for migration to JBoss (Windup) or that it is otherwise healthy and sound (Tattletale). If you want more information on the analysis provided by either tooling please visit the websites.
 
-How do I run Tattleup?
-Deploy windup.war to Tomcat7 (or any servlet spec 3.x aware container) and point your browser to the /tattleup context. 
+How do I build it?
+Tattleup is a standard maven project and can be built directly from the command line or any Maven aware IDE like eclipse. There is a caveat about the build: while Tattletale is currently available from the JBoss repository, the Windup project currently is not (to my knowledge). If you have not yet done so, you may need to build the Windup maven projects separately and install them in your local repository. More information on how to build Windup is found at the Windup Wiki on GitHub.
 
-Be sure Tomcat explodes the war or the app won't be able to write files!
+Anything else I need to know?
+Just a couple of things:
+1. Be sure Tomcat explodes the war or the app won't be able to write files!
 
-======================
-For more details on Windup, or for documentation on writing Windup rules, please see the documentation at:
- - https://github.com/jboss-windup/windup/wiki
- 
-For more details on Tattletale visit its pages on the JBoss Community site.
+2. Examining compiled code assumes the use of the JAD decompiler (http://www.varaneckas.com/jad/) to be installed and available to the container. You can manage this for Tomcat 7 by modifying startup.sh to include the JAD install location in $PATH. You alone are responsible for any licensing issues involved with the use of JAD. 
 
-
+Is that it?
+Yep. Once built, tattleup.war to Tomcat7 and point your browser to the /tattleup context of the host. 
