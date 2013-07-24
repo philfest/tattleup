@@ -54,7 +54,7 @@ public class WindupServlet extends HttpServlet {
         
     }  
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
           throws ServletException, IOException {
     	
     	String responseMesssage = null;
@@ -86,10 +86,14 @@ public class WindupServlet extends HttpServlet {
 	        } 
                                    	
         	String outputBaseDir = realPath + OUTPUT + File.separator + appName + File.separator;
+        	
+        	boolean doWindup = BooleanUtils.toBoolean(request.getParameter("doWindup"));
+        	
+        	boolean doTattletale = BooleanUtils.toBoolean(request.getParameter("doTattletale"));
+        	
+        	if (doWindup) doWindup(request, inputPath, outputBaseDir + WINDUP);
         
-        	doWindup(request, inputPath, outputBaseDir + WINDUP);
-        
-        	doTattletale(request, inputPath, outputBaseDir, realPath + INPUT + File.separator + appName);
+        	if (doTattletale) doTattletale(request, inputPath, outputBaseDir, realPath + INPUT + File.separator + appName);
         	
         	zipOutput(realPath, appName);
         	
@@ -478,7 +482,7 @@ public class WindupServlet extends HttpServlet {
     
     private String nowToString(){
     	
-    	SimpleDateFormat sdf = new SimpleDateFormat("MMddyy-HHmm");
+    	SimpleDateFormat sdf = new SimpleDateFormat("MMddyy-HHmmss");
     	
     	return sdf.format(new java.util.Date());
     }
@@ -492,9 +496,9 @@ public class WindupServlet extends HttpServlet {
     }
     
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        doGet(request, response);
+        doPost(request, response);
 
     }
 

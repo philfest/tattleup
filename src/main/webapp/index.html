@@ -84,6 +84,9 @@
 
             $('#o-c-tbl-div').hide();
             $('#o-c-hide').hide();
+            
+            $('.windupConfig').show();
+            $('.tattletaleConfig').show();
 
             $("#o-c-span").click(function(){
                 $('#o-c-tbl-div').toggle();
@@ -108,6 +111,19 @@
                 	$('.reports').prop('checked', false);
                  }           	
             }); 
+            
+            $('#doWindup').click(function(){
+            	
+                $('.windupConfig').toggle();  
+                
+            });
+            
+            $('#doTattletale').click(function(){
+
+                $('.tattletaleConfig').toggle();
+        	
+            });
+            
         }); 
 
         $('#myForm').submit(function() { 
@@ -118,6 +134,14 @@
         });
 
         function validateForm() {
+        	
+        	 var doTattletale=document.forms["myForm"]["doTattletale"].checked;
+             var doWindup=document.forms["myForm"]["doWindup"].checked;
+             if (!doTattletale && !doWindup){
+               alert("You must select at least one tooling option for this run.");
+               return false;
+             } 
+                	
         	var x=document.forms["myForm"]["appName"].value;
         	if (x==null || x==""){
         	  alert("Application name is a required field.");
@@ -134,36 +158,44 @@
               alert("You must select an archive to upload.");
               return false;
             }
+            
+            if(doWindup){
 
-            x=document.forms["myForm"]["javaPkgs"].value;
-            if (x==null || x==""){
-              alert("Packages to analyze is a required field.");
-              return false;
-            }    
+                x=document.forms["myForm"]["javaPkgs"].value;
+                if (x==null || x==""){
+                  alert("Packages to analyze is a required field.");
+                  return false;
+                }
+            	
+            }
+  
+            if(doTattletale){
             
-            var fields = $("input[name='reports']").serializeArray(); 
-            if (fields.length == 0) 
-            { 
-                alert('You must select at least one report type to generate'); 
-                // cancel submit
-                return false;
-            } 
+	            var fields = $("input[name='reports']").serializeArray(); 
+	            if (fields.length == 0) 
+	            { 
+	                alert('You must select at least one report type to generate'); 
+	                // cancel submit
+	                return false;
+	            } 
+	            
+	            fields = $("input[name='profiles']").serializeArray(); 
+	            if (fields.length == 0) 
+	            { 
+	                alert('You must select at least one profile to test against.'); 
+	                // cancel submit
+	                return false;
+	            } 
+	            
+	            fields = $("input[name='scans']").serializeArray(); 
+	            if (fields.length == 0) 
+	            { 
+	                alert('You must select at least one archive type to scan.'); 
+	                // cancel submit
+	                return false;
+	            }       
             
-            fields = $("input[name='profiles']").serializeArray(); 
-            if (fields.length == 0) 
-            { 
-                alert('You must select at least one profile to test against.'); 
-                // cancel submit
-                return false;
-            } 
-            
-            fields = $("input[name='scans']").serializeArray(); 
-            if (fields.length == 0) 
-            { 
-                alert('You must select at least one archive type to scan.'); 
-                // cancel submit
-                return false;
-            } 
+            }
 
             document.getElementById("text").innerHTML = 'Your archive is now being analyzed. This could take a while...';
             
@@ -220,7 +252,7 @@
 			   <BR>
 			   <input type="text" name="appName" size=45/></td>
 		    </tr> 
-		    <tr>
+		    <tr class='windupConfig'>
 		    	<td nowrap>Colon-delimited list of packages to analyze <span class='small'>(Windup only)</span>:
 				   <BR>
 				   <input type="text" name="javaPkgs" size=45 maxLength=250/></td>
@@ -240,8 +272,15 @@
 	<div id="optional-config">	
 	Optional Configuration&nbsp;<span id='o-c-span'><span id='o-c-show' class=small>(show)</span><span id='o-c-hide' class=small>(hide)</span></span>
 		<div id="o-c-tbl-div">
-			<table id="o-c-tbl" border=0 cellspacing=5 cellpadding=5>			   
-				<tr>   
+			<table id="o-c-tbl" border=0 cellspacing=10 cellpadding=0>	
+				<tr>
+					<td>
+					  Select which tooling to use for this run:<BR>
+					  <input type="checkbox" id="doWindup" name="doWindup" value="true" checked>Windup
+					  <input type="checkbox" id="doTattletale" name="doTattletale" value="true" checked>Tattletale
+					</td>				
+				</tr>		   
+				<tr class='tattletaleConfig'>   
 				  <td>				  
 					  Profiles to be resolved against during Tattletale runs:
 						<table>
@@ -258,7 +297,7 @@
 						</table>			  
 				  </td>
 				</tr>
-				<tr>
+				<tr class='tattletaleConfig'>
 					<td>
 						Reports to be generated	by Tattletale:
 						<table>	
@@ -311,7 +350,7 @@
 						</table>					
 					</td>
 				</tr>
-				<tr>
+				<tr class='tattletaleConfig'>
 					<td>
 						Archive types that Tattletale should scan:
 						<table>				
@@ -323,7 +362,7 @@
 						</table>
 					</td>
 				</tr>
-				<tr>  			
+				<tr class='windupConfig'>  			
 				   <td nowrap>Should Windup try to fetch remote POMs for unknown JAR files?<BR>
 				   	<span class='small'>(If you are running Windup without an internet connection, it's a good idea to set this to false)</span>
 				   <BR>
