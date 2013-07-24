@@ -2,16 +2,13 @@ Tattleup
 =====================
 
 What is Tattleup?
-A jee servlet that acts as a front-end to JBoss Windup (https://github.jboss-windup/windup) 
-and JBoss Tattletale (http://www.jboss.org/tattletale). Tattleup = Tattletale + Windup. Very clever.
+A jee servlet that acts as a front-end to JBoss Windup (https://github.jboss-windup/windup) and JBoss Tattletale (http://www.jboss.org/tattletale). Tattleup = Tattletale + Windup. Very clever.
 
 What does it do?
 It allows you to upload a JEE archive (ear or war) and have it analyzed by Windup or Tattletale or both.
 
 What does that mean?
-You can make sure that your archive is fit and ready for migration to JBoss (Windup) or that it is otherwise
-healthy and sound (Tattletale). If you want more information on the analysis provided by either tooling please visit the
-websites.
+You can make sure that your archive is fit and ready for migration to JBoss (Windup) or that it is otherwise healthy and sound (Tattletale). If you want more information on the analysis provided by either tooling please visit the websites.
 
 How do I build it?
 Tattleup is a standard maven project and can be built directly from the command line or any Maven aware IDE like eclipse. There is a caveat about the build: while Tattletale is currently available from the JBoss repository, the Windup project currently is not (to my knowledge). If you have not yet done so, you may need to build the Windup maven projects separately and install them in your local repository. More information on how to build Windup is found at the Windup Wiki on GitHub.
