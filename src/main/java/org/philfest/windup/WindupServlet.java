@@ -59,8 +59,18 @@ public class WindupServlet extends HttpServlet {
     	
     	String responseMesssage = null;
          
-    	String realPath =  this.getServletContext().getRealPath("/");
+    	//String realPath =  this.getServletContext().getRealPath("/");
+    	
+    	String realPath =  System.getenv("OPENSHIFT_DATA_DIR");
            
+    	if (StringUtils.isBlank(realPath)) {
+    		
+    			logger.warn("OpenShift environment variable OPENSHIFT_DATA_DIR not found. Using ServletContext to get path.");
+    			
+    			realPath = this.getServletContext().getRealPath("/");
+    			
+    	}
+    	
     	String fileName = null;
         
         String appName = null;
