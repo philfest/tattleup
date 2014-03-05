@@ -1,24 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.philfest.windup</groupId>
-	<artifactId>windup-web</artifactId>
+	<groupId>org.philfest</groupId>
+	<artifactId>tattleup</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
 	<build>
 		<finalName>tattleup</finalName>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.0</version>
-				<configuration>
-					<url>http://localhost:8080/manager/html</url>
-					<server>localhost</server>
-					<path>/${project.build.finalName}</path>
-				</configuration>
-			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
@@ -34,6 +24,46 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+      <repositories>  
+        <repository>
+            <id>jboss-snapshots-repository-group</id>
+            <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>jboss-snapshot</id>
+            <name>jboss-snapshot</name>
+            <url>http://snapshots.jboss.org/maven2/</url>
+        </repository>
+      </repositories>  
+      <pluginRepositories>  
+        <pluginRepository>  
+          <id>jboss-public-repository-group</id>  
+          <name>JBoss Public Maven Repository Group</name>  
+          <url>https://repository.jboss.org/nexus/content/groups/public-jboss/</url>  
+          <layout>default</layout>  
+          <releases>  
+            <enabled>true</enabled>  
+            <updatePolicy>never</updatePolicy>  
+          </releases>  
+          <snapshots>  
+            <enabled>true</enabled>  
+            <updatePolicy>never</updatePolicy>  
+          </snapshots>  
+        </pluginRepository>  
+      </pluginRepositories> 	
 
 	<dependencies>
 		<dependency>
@@ -42,18 +72,21 @@
 			<version>6.0</version>
 			<scope>provided</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
 			<scope>compile</scope>
 		</dependency>
+		
 		<dependency>
 			<artifactId>windup-engine</artifactId>
 			<groupId>org.jboss.windup</groupId>
@@ -66,18 +99,21 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		
 		<dependency>
 			<artifactId>windup-rules</artifactId>
 			<groupId>org.jboss.windup</groupId>
 			<version>0.6.8</version>
 			<scope>compile</scope>
 		</dependency>
+		
 		<dependency>
 			<artifactId>tattletale</artifactId>
 			<groupId>org.jboss.tattletale</groupId>
-			<version>1.2.0.Beta2</version>
+			<version>1.2.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
