@@ -191,8 +191,6 @@ public class TattleupHelper {
     	
     	main.setFailOnError(false);
     	
-    	main.setDeleteOutputDirectory(true);
-    	
     	main.setConfiguration(propsFile);
     	
     	main.execute();
